@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
 
-img = cv.imread('colortestfile.bmp')
+img = cv.imread('../example-images/colortestfile.bmp')
 gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
 edges = cv.Canny(img,50,200)
