@@ -1,2 +1,2 @@
-# strke-zone-detector
+# strike-zone-detector
 Jacob Haimes' and my final Computer Vision project
