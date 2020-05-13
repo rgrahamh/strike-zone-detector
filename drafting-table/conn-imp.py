@@ -1,6 +1,15 @@
 import numpy as np
 import cv2 as cv
 
+def getColor(img, y, x):
+	if img[y][x][0] == 255 and img[y][x][1] == 0 and img[y][x][2] == 0:
+		return 0
+	elif img[y][x][0] == 0 and img[y][x][1] == 255 and img[y][x][2] == 0:
+		return 1
+	elif img[y][x][0] == 64 and img[y][x][1] == 64 and img[y][x][2] == 192:
+		return 2
+	return -1
+
 def interpImg():
 	img = cv.imread('../example-images/colortestfile.bmp')
 	gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -10,13 +19,26 @@ def interpImg():
 	height = dimensions[0]
 	width = dimensions[1]
 
+	dot_img = img
+	for y in range(height):
+		for x in range(width):
+			if abs(img[y][x][0] - img[y][x][1]) < 40 and abs(img[y][x][1] - img[y][x][2]) < 40 and abs(img[y][x][2] - img[y][x][0]) < 40:
+				for i in range(3):
+					dot_img[y][x][i] = 255
+			else:
+				for i in range(3):
+					dot_img[y][x][i] = 0
+				
+	bw_dot_img = cv.cvtColor(dot_img, cv.COLOR_BGR2GRAY)
+	cv.imshow("img", bw_dot_img)
+
 	#Set the bounds based upon image dimensions
 	strike_upper_bound = height / 3
 	strike_lower_bound = height * 2 / 3
 	strike_left_bound = width / 3
 	strike_right_bound = width * 2 / 3
 
-	num_comp, conn_img = cv.connectedComponents(gray, 8)
+	num_comp, conn_img = cv.connectedComponents(bw_dot_img, 8)
 	used_val = np.zeros(num_comp)
 
 	#Initialize incrementors
@@ -34,19 +56,20 @@ def interpImg():
 			if used_val[bwval] == 0:
 				print(img[y][x])
 				#If the dot is red
-				if img[y][x][0] == 255 and img[y][x][1] == 0 and img[y][x][2] == 0:
+				color = getColor(img, y, x)
+				if color == 0:
 					if y < strike_upper_bound and y > strike_lower_bound and x > strike_left_bound and x < strike_right_bound:
 						red_strike += 1
 					else:
 						red_ball += 1
 				#Else if green
-				elif img[y][x][0] == 0 and img[y][x][1] == 255 and img[y][x][2] == 0:
+				elif color == 1:
 					if y < strike_upper_bound and y > strike_lower_bound and x > strike_left_bound and x < strike_right_bound:
 						green_strike += 1
 					else:
 						green_ball += 1
 				#Else if blue
-				elif img[y][x][0] == 64 and img[y][x][1] == 64 and img[y][x][2] == 192:
+				elif color == 2:
 					if y < strike_upper_bound and y > strike_lower_bound and x > strike_left_bound and x < strike_right_bound:
 						blue_strike += 1
 					else:
@@ -54,6 +77,8 @@ def interpImg():
 
 				#Set the checked flag
 				used_val[bwval] = 1
+
+	cv.waitKey(0)
 		
 	print("Red strikes:", red_strike)
 	print("Red balls:", red_ball)
@@ -61,5 +86,6 @@ def interpImg():
 	print("Blue balls:", blue_ball)
 	print("Green strikes:", green_strike)
 	print("Green balls:", green_ball)
+	cv.destroyAllWindows()
 
 interpImg()
