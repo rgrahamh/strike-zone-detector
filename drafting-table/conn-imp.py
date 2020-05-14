@@ -2,11 +2,14 @@ import numpy as np
 import cv2 as cv
 
 def getColor(img, y, x):
-	if img[y][x][0] == 255 and img[y][x][1] == 0 and img[y][x][2] == 0:
+	#Red
+	if img[y][x][0] == 0 and img[y][x][1] == 0 and img[y][x][2] == 128:
 		return 0
-	elif img[y][x][0] == 0 and img[y][x][1] == 255 and img[y][x][2] == 0:
+	#Green
+	elif img[y][x][0] == 64 and img[y][x][1] == 192 and img[y][x][2] == 32:
 		return 1
-	elif img[y][x][0] == 64 and img[y][x][1] == 64 and img[y][x][2] == 192:
+	#Blue
+	elif img[y][x][0] == 192 and img[y][x][1] == 64 and img[y][x][2] == 64:
 		return 2
 	return -1
 
@@ -19,15 +22,15 @@ def interpImg():
 	height = dimensions[0]
 	width = dimensions[1]
 
-	dot_img = img
+	dot_img = img.copy()
 	for y in range(height):
 		for x in range(width):
 			if abs(img[y][x][0] - img[y][x][1]) < 40 and abs(img[y][x][1] - img[y][x][2]) < 40 and abs(img[y][x][2] - img[y][x][0]) < 40:
 				for i in range(3):
-					dot_img[y][x][i] = 255
+					dot_img[y][x][i] = 0
 			else:
 				for i in range(3):
-					dot_img[y][x][i] = 0
+					dot_img[y][x][i] = 255
 				
 	bw_dot_img = cv.cvtColor(dot_img, cv.COLOR_BGR2GRAY)
 	cv.imshow("img", bw_dot_img)
@@ -38,8 +41,10 @@ def interpImg():
 	strike_left_bound = width / 3
 	strike_right_bound = width * 2 / 3
 
-	num_comp, conn_img = cv.connectedComponents(bw_dot_img, 8)
+	num_comp, conn_img = cv.connectedComponents(bw_dot_img, 4)
 	used_val = np.zeros(num_comp)
+
+	print(set(conn_img.reshape(-1).tolist()))
 
 	#Initialize incrementors
 	red_strike = 0
@@ -48,6 +53,8 @@ def interpImg():
 	blue_ball = 0
 	green_strike = 0
 	green_ball = 0
+
+	print(conn_img)
 
 	for y in range(height):
 		for x in range(width):
@@ -87,5 +94,7 @@ def interpImg():
 	print("Green strikes:", green_strike)
 	print("Green balls:", green_ball)
 	cv.destroyAllWindows()
+
+	cv.imwrite("bw_img.png", bw_dot_img)
 
 interpImg()
