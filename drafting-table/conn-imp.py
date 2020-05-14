@@ -13,6 +13,9 @@ def getColor(img, y, x):
 		return 2
 	return -1
 
+def isInBounds(y, x, upper_bound, lower_bound, left_bound, right_bound):
+	return y > upper_bound and y < lower_bound and x > left_bound and x < right_bound
+
 def interpImg():
 	img = cv.imread('../example-images/colortestfile.bmp')
 	gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -65,19 +68,19 @@ def interpImg():
 				#If the dot is red
 				color = getColor(img, y, x)
 				if color == 0:
-					if y < strike_upper_bound and y > strike_lower_bound and x > strike_left_bound and x < strike_right_bound:
+					if isInBounds(y, x, strike_upper_bound, strike_lower_bound, strike_left_bound, strike_right_bound):
 						red_strike += 1
 					else:
 						red_ball += 1
 				#Else if green
 				elif color == 1:
-					if y < strike_upper_bound and y > strike_lower_bound and x > strike_left_bound and x < strike_right_bound:
+					if isInBounds(y, x, strike_upper_bound, strike_lower_bound, strike_left_bound, strike_right_bound):
 						green_strike += 1
 					else:
 						green_ball += 1
 				#Else if blue
 				elif color == 2:
-					if y < strike_upper_bound and y > strike_lower_bound and x > strike_left_bound and x < strike_right_bound:
+					if isInBounds(y, x, strike_upper_bound, strike_lower_bound, strike_left_bound, strike_right_bound):
 						blue_strike += 1
 					else:
 						blue_ball += 1
