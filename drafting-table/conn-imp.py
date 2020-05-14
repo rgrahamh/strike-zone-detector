@@ -3,13 +3,13 @@ import cv2 as cv
 
 def getColor(img, y, x):
 	#Red
-	if img[y][x][0] == 0 and img[y][x][1] == 0 and img[y][x][2] == 128:
+	if img[y][x][2] > img[y][x][1] and img[y][x][2] > img[y][x][0]:
 		return 0
 	#Green
-	elif img[y][x][0] == 64 and img[y][x][1] == 192 and img[y][x][2] == 32:
+	elif img[y][x][1] > img[y][x][2] and img[y][x][1] > img[y][x][0]:
 		return 1
 	#Blue
-	elif img[y][x][0] == 192 and img[y][x][1] == 64 and img[y][x][2] == 64:
+	elif img[y][x][0] > img[y][x][1] and img[y][x][0] > img[y][x][2]:
 		return 2
 	return -1
 
