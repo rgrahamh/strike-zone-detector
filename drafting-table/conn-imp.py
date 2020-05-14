@@ -18,7 +18,6 @@ def isInBounds(y, x, upper_bound, lower_bound, left_bound, right_bound):
 
 def interpImg():
 	img = cv.imread('../example-images/colortestfile.bmp')
-	gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 	
 	dimensions = img.shape
 
@@ -36,7 +35,6 @@ def interpImg():
 					dot_img[y][x][i] = 255
 				
 	bw_dot_img = cv.cvtColor(dot_img, cv.COLOR_BGR2GRAY)
-	cv.imshow("img", bw_dot_img)
 
 	#Set the bounds based upon image dimensions
 	strike_upper_bound = height / 3
@@ -47,8 +45,6 @@ def interpImg():
 	num_comp, conn_img = cv.connectedComponents(bw_dot_img, 4)
 	used_val = np.zeros(num_comp)
 
-	print(set(conn_img.reshape(-1).tolist()))
-
 	#Initialize incrementors
 	red_strike = 0
 	red_ball = 0
@@ -57,47 +53,46 @@ def interpImg():
 	green_strike = 0
 	green_ball = 0
 
-	print(conn_img)
-
 	for y in range(height):
 		for x in range(width):
 			bwval = conn_img[y][x]
-			#print(img[y][x])
 			if used_val[bwval] == 0:
-				print(img[y][x])
+				#We should have hit the peak of the circle due to our search ordering, so x == x_center
+				#Calculating the Y center
+				y_val = y
+				while y_val < height and conn_img[y_val][x] == bwval:
+					y_val += 1
+				y_center = (y_val + y) / 2
+
 				#If the dot is red
 				color = getColor(img, y, x)
 				if color == 0:
-					if isInBounds(y, x, strike_upper_bound, strike_lower_bound, strike_left_bound, strike_right_bound):
+					if isInBounds(y_center, x, strike_upper_bound, strike_lower_bound, strike_left_bound, strike_right_bound):
 						red_strike += 1
 					else:
 						red_ball += 1
 				#Else if green
 				elif color == 1:
-					if isInBounds(y, x, strike_upper_bound, strike_lower_bound, strike_left_bound, strike_right_bound):
+					if isInBounds(y_center, x, strike_upper_bound, strike_lower_bound, strike_left_bound, strike_right_bound):
 						green_strike += 1
 					else:
 						green_ball += 1
 				#Else if blue
 				elif color == 2:
-					if isInBounds(y, x, strike_upper_bound, strike_lower_bound, strike_left_bound, strike_right_bound):
+					if isInBounds(y_center, x, strike_upper_bound, strike_lower_bound, strike_left_bound, strike_right_bound):
 						blue_strike += 1
 					else:
 						blue_ball += 1
 
 				#Set the checked flag
 				used_val[bwval] = 1
-
-	cv.waitKey(0)
 		
+	#Output
 	print("Red strikes:", red_strike)
 	print("Red balls:", red_ball)
 	print("Blue strikes:", blue_strike)
 	print("Blue balls:", blue_ball)
 	print("Green strikes:", green_strike)
 	print("Green balls:", green_ball)
-	cv.destroyAllWindows()
-
-	cv.imwrite("bw_img.png", bw_dot_img)
 
 interpImg()
