@@ -77,28 +77,32 @@ def interpImg():
 	print(bounds[2])
 	print(bounds[3])
 
+	avg_top = (bounds[0][0] + bounds[1][0]) / 2
+	avg_bot = (bounds[2][0] + bounds[3][0]) / 2
+	avg_left = (bounds[0][1] + bounds[2][1]) / 2
+	avg_right = (bounds[1][1] + bounds[3][1]) / 2
+
 	dot_img = img.copy()
 	for y in range(height):
 		for x in range(width):
-			if (int(img[y][x][0]) - ((int(img[y][x][1]) + img[y][x][2]) / 2) > COLOR_THRESH or int(img[y][x][1]) - ((int(img[y][x][0]) + img[y][x][2]) / 2) > COLOR_THRESH or int(img[y][x][2]) - ((int(img[y][x][0]) + img[y][x][1]) / 2) > COLOR_THRESH) and (y > bounds[0][0] and y < bounds[2][0] and x > bounds[0][1] and x < bounds[1][1]):
+			if (int(img[y][x][0]) - ((int(img[y][x][1]) + img[y][x][2]) / 2) > COLOR_THRESH or int(img[y][x][1]) - ((int(img[y][x][0]) + img[y][x][2]) / 2) > COLOR_THRESH or int(img[y][x][2]) - ((int(img[y][x][0]) + img[y][x][1]) / 2) > COLOR_THRESH) and (y > avg_top and y < avg_bot and x > avg_left and x < avg_right):
 				for i in range(3):
 					dot_img[y][x][i] = 255
 			else:
 				for i in range(3):
 					dot_img[y][x][i] = 0
-
 	#Set the bounds based upon image dimensions
 	#Using top left as a starting point, go a quarter of the way to bot left.
-	strike_upper_bound = bounds[0][0] + ((bounds[2][0] - bounds[0][0]) / 4)
+	strike_upper_bound = avg_top + ((avg_bot - avg_top) / 4)
 
 	#Using top left as a starting point, go three quarters of the way to bot left.
-	strike_lower_bound = bounds[0][0] + ((bounds[2][0] - bounds[0][0]) * 3 / 4)
+	strike_lower_bound = avg_top + ((avg_bot - avg_top) * 3 / 4)
 
 	#Using top left as a starting point, go a quarter of the way to top right.
-	strike_left_bound = bounds[0][1] + ((bounds[1][1] - bounds[0][1]) / 4)
+	strike_left_bound = avg_left + ((avg_right - avg_left) / 4)
 
 	#Using top left as a starting point, go three quarters of the way to top right.
-	strike_right_bound = bounds[0][1] + ((bounds[1][1] - bounds[0][1]) * 3 / 4)
+	strike_right_bound = avg_left + ((avg_right - avg_left) * 3 / 4)
 				
 	bw_dot_img = cv.cvtColor(dot_img, cv.COLOR_BGR2GRAY)
 
