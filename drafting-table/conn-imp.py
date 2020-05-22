@@ -3,6 +3,8 @@ import math
 import cv2 as cv
 
 COLOR_THRESH = 20
+HARRIS_THRESH = 0.005
+ANGLE_THRESH = 0.1
 
 def getColor(img, y, x):
 	#Red
@@ -49,7 +51,7 @@ def interpImg():
 
 	for y in range(height):
 		for x in range(width):
-			if edge_img[y][x] > 0.005:
+			if edge_img[y][x] > HARRIS_THRESH:
 				corners.append([y, x])
 	
 	for top_left in corners:
@@ -60,7 +62,7 @@ def interpImg():
 						for bot_right in corners:
 							if top_right[0] < bot_right[0] and bot_left[1] < bot_right[1] and top_left[1] < bot_right[1]:
 								#If they're parallel on opposite sides
-								if abs(getAngle(top_left, top_right) - getAngle(bot_left, bot_right)) < 0.1 and abs(getAngle(top_left, bot_left) - getAngle(top_right, bot_right)) < 0.1:
+								if abs(getAngle(top_left, top_right) - getAngle(bot_left, bot_right)) < ANGLE_THRESH and abs(getAngle(top_left, bot_left) - getAngle(top_right, bot_right)) < ANGLE_THRESH:
 									size = getDist(top_left, top_right) * getDist(top_left, bot_left)
 									#If they're the max area
 									if size > max_sz:
@@ -78,16 +80,12 @@ def interpImg():
 	dot_img = img.copy()
 	for y in range(height):
 		for x in range(width):
-			if int(img[y][x][0]) - ((int(img[y][x][1]) + img[y][x][2]) / 2) > COLOR_THRESH or int(img[y][x][1]) - ((int(img[y][x][0]) + img[y][x][2]) / 2) > COLOR_THRESH or int(img[y][x][2]) - ((int(img[y][x][0]) + img[y][x][1]) / 2) > COLOR_THRESH:
+			if (int(img[y][x][0]) - ((int(img[y][x][1]) + img[y][x][2]) / 2) > COLOR_THRESH or int(img[y][x][1]) - ((int(img[y][x][0]) + img[y][x][2]) / 2) > COLOR_THRESH or int(img[y][x][2]) - ((int(img[y][x][0]) + img[y][x][1]) / 2) > COLOR_THRESH) and (y > bounds[0][0] and y < bounds[2][0] and x > bounds[0][1] and x < bounds[1][1]):
 				for i in range(3):
 					dot_img[y][x][i] = 255
 			else:
 				for i in range(3):
 					dot_img[y][x][i] = 0
-				
-	bw_dot_img = cv.cvtColor(dot_img, cv.COLOR_BGR2GRAY)
-
-	cv.imwrite('bwdot.bmp', bw_dot_img)
 
 	#Set the bounds based upon image dimensions
 	#Using top left as a starting point, go a quarter of the way to bot left.
@@ -101,6 +99,10 @@ def interpImg():
 
 	#Using top left as a starting point, go three quarters of the way to top right.
 	strike_right_bound = bounds[0][1] + ((bounds[1][1] - bounds[0][1]) * 3 / 4)
+				
+	bw_dot_img = cv.cvtColor(dot_img, cv.COLOR_BGR2GRAY)
+
+	cv.imwrite('bwdot.bmp', bw_dot_img)
 
 	num_comp, conn_img = cv.connectedComponents(bw_dot_img, 4)
 	used_val = np.zeros(num_comp)
