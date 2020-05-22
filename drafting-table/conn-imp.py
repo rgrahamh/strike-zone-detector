@@ -36,7 +36,7 @@ def interpImg():
 
 	#Get the cornered image
 	edge_gray = gray.copy()
-	edge_img = cv.cornerHarris(edge_gray, 2, 3, 0.04)
+	edge_img = cv.cornerHarris(edge_gray, 2, 3, 0.001)
 	
 	#Getting image dimensions
 	dimensions = img.shape
@@ -54,20 +54,21 @@ def interpImg():
 	
 	for top_left in corners:
 		for top_right in corners:
-			for bot_left in corners:
-				for bot_right in corners:
-					#If they're oriented properly
-					if top_left[1] < top_right[1] and top_left[1] < bot_right[1] and bot_left[1] < bot_right[1] and bot_left[1] < bot_right[1] and top_left[0] < bot_left[0] and top_left[0] < bot_right[0] and top_right[0] < bot_right[0] and top_right[0] < bot_left[0]:
-						#If they're parallel on opposite sides
-						if abs(getAngle(top_left, top_right) - getAngle(bot_left, bot_right)) < 0.01 and abs(getAngle(top_left, bot_left) - getAngle(top_right, bot_right)) < 0.01:
-							size = getDist(top_left, top_right) * getDist(top_left, bot_right)
-							#If they're the max area
-							if size > max_sz:
-								bounds[0] = top_left
-								bounds[1] = top_right
-								bounds[2] = bot_left
-								bounds[3] = bot_right
-								max_sz = size
+			if top_left[1] < top_right[1]:
+				for bot_left in corners:
+					if top_left[0] < bot_left[0] and bot_left[1] < top_right[1]:
+						for bot_right in corners:
+							if top_right[0] < bot_right[0] and bot_left[1] < bot_right[1] and top_left[1] < bot_right[1]:
+								#If they're parallel on opposite sides
+								if abs(getAngle(top_left, top_right) - getAngle(bot_left, bot_right)) < 0.1 and abs(getAngle(top_left, bot_left) - getAngle(top_right, bot_right)) < 0.1:
+									size = getDist(top_left, top_right) * getDist(top_left, bot_left)
+									#If they're the max area
+									if size > max_sz:
+										bounds[0] = top_left
+										bounds[1] = top_right
+										bounds[2] = bot_left
+										bounds[3] = bot_right
+										max_sz = size
 
 	print(bounds[0])
 	print(bounds[1])
@@ -90,16 +91,16 @@ def interpImg():
 
 	#Set the bounds based upon image dimensions
 	#Using top left as a starting point, go a quarter of the way to bot left.
-	strike_upper_bound = bounds[0][0] + ((bounds[0][0] - bounds[2][0]) / 4)
+	strike_upper_bound = bounds[0][0] + ((bounds[2][0] - bounds[0][0]) / 4)
 
 	#Using top left as a starting point, go three quarters of the way to bot left.
-	strike_lower_bound = bounds[0][0] + ((bounds[0][0] - bounds[2][0]) * 3 / 4)
+	strike_lower_bound = bounds[0][0] + ((bounds[2][0] - bounds[0][0]) * 3 / 4)
 
 	#Using top left as a starting point, go a quarter of the way to top right.
-	strike_left_bound = bounds[0][1] + ((bounds[0][1] - bounds[1][1]) / 4)
+	strike_left_bound = bounds[0][1] + ((bounds[1][1] - bounds[0][1]) / 4)
 
 	#Using top left as a starting point, go three quarters of the way to top right.
-	strike_right_bound = bounds[0][1] + ((bounds[0][1] - bounds[1][1]) * 3 / 4)
+	strike_right_bound = bounds[0][1] + ((bounds[1][1] - bounds[0][1]) * 3 / 4)
 
 	num_comp, conn_img = cv.connectedComponents(bw_dot_img, 4)
 	used_val = np.zeros(num_comp)
