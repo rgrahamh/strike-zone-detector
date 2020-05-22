@@ -28,7 +28,7 @@ def isInBounds(y, x, upper_bound, lower_bound, left_bound, right_bound):
 	return y > upper_bound and y < lower_bound and x > left_bound and x < right_bound
 
 def interpImg():
-	img = cv.imread('../example-images/irl2.bmp')
+	img = cv.imread('example-images/irl2.bmp')
 	gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 	
 	dimensions = img.shape
