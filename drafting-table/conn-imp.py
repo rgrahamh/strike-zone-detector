@@ -3,8 +3,8 @@ import math
 import cv2 as cv
 
 COLOR_THRESH = 20
-HARRIS_THRESH = 0.005
-ANGLE_THRESH = 0.1
+HARRIS_THRESH = 0.004
+ANGLE_THRESH = 0.01
 
 def getColor(img, y, x):
 	#Red
@@ -28,7 +28,7 @@ def isInBounds(y, x, upper_bound, lower_bound, left_bound, right_bound):
 	return y > upper_bound and y < lower_bound and x > left_bound and x < right_bound
 
 def interpImg():
-	img = cv.imread('../example-images/irl1.bmp')
+	img = cv.imread('../example-images/irl2.bmp')
 	gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 	
 	dimensions = img.shape
@@ -62,6 +62,7 @@ def interpImg():
 						for bot_right in corners:
 							if top_right[0] < bot_right[0] and bot_left[1] < bot_right[1] and top_left[1] < bot_right[1]:
 								#If they're parallel on opposite sides
+								getAngle(top_left, top_right)
 								if abs(getAngle(top_left, top_right) - getAngle(bot_left, bot_right)) < ANGLE_THRESH and abs(getAngle(top_left, bot_left) - getAngle(top_right, bot_right)) < ANGLE_THRESH:
 									size = getDist(top_left, top_right) * getDist(top_left, bot_left)
 									#If they're the max area
@@ -71,11 +72,6 @@ def interpImg():
 										bounds[2] = bot_left
 										bounds[3] = bot_right
 										max_sz = size
-
-	print(bounds[0])
-	print(bounds[1])
-	print(bounds[2])
-	print(bounds[3])
 
 	avg_top = (bounds[0][0] + bounds[1][0]) / 2
 	avg_bot = (bounds[2][0] + bounds[3][0]) / 2
@@ -91,6 +87,7 @@ def interpImg():
 			else:
 				for i in range(3):
 					dot_img[y][x][i] = 0
+
 	#Set the bounds based upon image dimensions
 	#Using top left as a starting point, go a quarter of the way to bot left.
 	strike_upper_bound = avg_top + ((avg_bot - avg_top) / 4)
