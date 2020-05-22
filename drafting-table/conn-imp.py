@@ -17,7 +17,7 @@ def isInBounds(y, x, upper_bound, lower_bound, left_bound, right_bound):
 	return y > upper_bound and y < lower_bound and x > left_bound and x < right_bound
 
 def interpImg():
-	img = cv.imread('../example-images/colortestfile.bmp')
+	img = cv.imread('../example-images/irl1.bmp')
 	
 	dimensions = img.shape
 
@@ -27,14 +27,16 @@ def interpImg():
 	dot_img = img.copy()
 	for y in range(height):
 		for x in range(width):
-			if abs(img[y][x][0] - img[y][x][1]) < 40 and abs(img[y][x][1] - img[y][x][2]) < 40 and abs(img[y][x][2] - img[y][x][0]) < 40:
-				for i in range(3):
-					dot_img[y][x][i] = 0
-			else:
+			if int(img[y][x][0]) - ((int(img[y][x][1]) + img[y][x][2]) / 2) > 20 or int(img[y][x][1]) - ((int(img[y][x][0]) + img[y][x][2]) / 2) > 20 or int(img[y][x][2]) - ((int(img[y][x][0]) + img[y][x][1]) / 2) > 20:
 				for i in range(3):
 					dot_img[y][x][i] = 255
+			else:
+				for i in range(3):
+					dot_img[y][x][i] = 0
 				
 	bw_dot_img = cv.cvtColor(dot_img, cv.COLOR_BGR2GRAY)
+
+	cv.imwrite('bwdot.bmp', bw_dot_img)
 
 	#Set the bounds based upon image dimensions
 	strike_upper_bound = height / 3
